@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { User } from './users/user.entity';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -21,6 +23,13 @@ import { User } from './users/user.entity';
       }),
     }),
     UsersModule,
+    PassportModule,
+    JwtModule.registerAsync({
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '6m' },
+      }),
+    }),
   ],
   controllers: [AuthController],
   providers: [AuthService],
