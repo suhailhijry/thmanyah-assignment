@@ -15,24 +15,29 @@ export class UsersService {
   }
 
   findOne(id: string): Promise<User | null> {
-    return this.userRepository.findOneBy({ id });
+    return this.userRepository.findOneBy({ id, isActive: true });
   }
 
   async deactivate(id: string): Promise<void> {
     await this.userRepository.update(id, { isActive: false });
   }
 
-  async create(email: string, password: string): Promise<User> {
+  async create(name: string, email: string, password: string): Promise<User> {
     const salt = await bcrypt.genSalt(10);
     password = await bcrypt.hash(password, salt);
-    const newUser = this.userRepository.create({ email, password });
+    const newUser = this.userRepository.create({ name, email, password });
     return this.userRepository.save(newUser);
   }
 
-  async update(id: string, email: string, password: string): Promise<User> {
+  async update(
+    id: string,
+    name: string,
+    email: string,
+    password: string,
+  ): Promise<User> {
     const salt = await bcrypt.genSalt(10);
     password = await bcrypt.hash(password, salt);
-    await this.userRepository.update(id, { email, password });
+    await this.userRepository.update(id, { name, email, password });
     const result = await this.findOne(id);
     return result!;
   }

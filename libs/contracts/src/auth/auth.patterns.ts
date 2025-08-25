@@ -5,4 +5,4 @@ export const AuthPatterns = {
   ALL_USERS: 'auth.user.findAll',
   DEACTIVATE_USER: 'auth.user.deactivate',
   UPDATE_USER: 'auth.user.update',
-};
+} as const;

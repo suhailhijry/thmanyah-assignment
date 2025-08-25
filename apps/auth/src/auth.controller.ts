@@ -13,10 +13,7 @@ export class AuthController {
   ) {}
 
   @MessagePattern(AuthPatterns.LOGIN)
-  async login(input: {
-    email: string;
-    password: string;
-  }): Promise<{
+  async login(input: { email: string; password: string }): Promise<{
     accessToken: string;
     refreshToken: string;
     userId: string;
@@ -30,7 +27,7 @@ export class AuthController {
     email: string;
     password: string;
   }): Promise<User> {
-    return this.usersService.create(data.email, data.password);
+    return this.usersService.create(data.name, data.email, data.password);
   }
 
   @MessagePattern(AuthPatterns.ALL_USERS)
@@ -49,7 +46,17 @@ export class AuthController {
   }
 
   @MessagePattern(AuthPatterns.UPDATE_USER)
-  update(data: { id: string; email: string; password: string }): Promise<User> {
-    return this.usersService.update(data.id, data.email, data.password);
+  update(data: {
+    id: string;
+    name: string;
+    email: string;
+    password: string;
+  }): Promise<User> {
+    return this.usersService.update(
+      data.id,
+      data.name,
+      data.email,
+      data.password,
+    );
   }
 }
