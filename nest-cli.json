@@ -10,6 +10,33 @@
   "monorepo": true,
   "root": "apps/gateway",
   "projects": {
+    "auth": {
+      "type": "application",
+      "root": "apps/auth",
+      "entryFile": "main",
+      "sourceRoot": "apps/auth/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/auth/tsconfig.app.json"
+      }
+    },
+    "cms": {
+      "type": "application",
+      "root": "apps/cms",
+      "entryFile": "main",
+      "sourceRoot": "apps/cms/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/cms/tsconfig.app.json"
+      }
+    },
+    "discovery": {
+      "type": "application",
+      "root": "apps/discovery",
+      "entryFile": "main",
+      "sourceRoot": "apps/discovery/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/discovery/tsconfig.app.json"
+      }
+    },
     "gateway": {
       "type": "application",
       "root": "apps/gateway",
