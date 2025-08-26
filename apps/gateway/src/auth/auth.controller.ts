@@ -7,15 +7,19 @@ import {
   Param,
   Patch,
   Post,
+  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { User } from '@app/contracts/auth/user.entity';
-import { map } from 'rxjs/operators';
+import { map, first } from 'rxjs/operators';
+import { JwtAuthGuard } from '@app/contracts/auth/jwt.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(@Inject() protected readonly authService: AuthService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get('users')
   findAll() {
     return this.authService.findAll().pipe(
@@ -29,6 +33,7 @@ export class AuthController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('user/:id')
   findOne(@Param('id') id: string) {
     return this.authService.findOne(id).pipe(
@@ -46,16 +51,19 @@ export class AuthController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch('user/:id/deactivate')
   deactivate(@Param('id') id: string) {
     return this.authService.deactivate(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('user')
   create(@Body() data: { name: string; email: string; password: string }) {
     return this.authService.create(data);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch('user/:id')
   update(
     @Body() data: { id: string; name: string; email: string; password: string },
@@ -65,6 +73,14 @@ export class AuthController {
 
   @Post('login')
   login(@Body() input: { email: string; password: string }) {
-    return this.authService.login(input);
+    const result = this.authService.login(input).pipe(
+      first((user) => {
+        if (!user) {
+          throw new UnauthorizedException();
+        }
+        return true;
+      }),
+    );
+    return result;
   }
 }
