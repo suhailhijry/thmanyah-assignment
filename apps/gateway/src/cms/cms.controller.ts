@@ -120,4 +120,22 @@ export class CmsController {
   getMediaMetadata(@Param('id') id: string) {
     return this.cmsService.getMetadata(id);
   }
+
+  @Post('media/:id/metadata')
+  setMetadata(
+    @Param('id') id: string,
+    @Body()
+    data: {
+      duration: number | null;
+      width: number | null;
+      height: number | null;
+      codec: string | null;
+      bitrate: number | null;
+      language: string | null;
+      category: string | null;
+    },
+    @Req() req: FastifyRequest,
+  ) {
+    return this.cmsService.setMetadata(id, data, (req as any).user.id);
+  }
 }

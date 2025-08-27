@@ -117,22 +117,27 @@ export class MediaService {
 
   async setMetadata(
     media: string,
-    duration: number | null,
-    width: number | null,
-    height: number | null,
-    codec: string | null,
-    bitrate: number | null,
+    metadata: {
+      duration: number | null;
+      width: number | null;
+      height: number | null;
+      codec: string | null;
+      bitrate: number | null;
+      language: string | null;
+      category: string | null;
+    },
+    userId: string,
   ): Promise<Media> {
     const m = await this.metadataRepository.findOneBy({ mediaId: media });
 
+    console.log('media: ', media);
+    console.log('metadata: ', metadata);
+
     if (!m) {
       await this.metadataRepository.save({
-        duration: duration,
-        width: width,
-        height: height,
-        codec: codec,
-        bitrate: bitrate,
+        ...metadata,
         mediaId: media,
+        userId: userId,
       } as DeepPartial<MediaMetadata>);
       const result = await this.mediaRepository.findOneBy({
         id: media,
@@ -144,11 +149,9 @@ export class MediaService {
       });
       await this.metadataRepository.save({
         id: m.id,
-        duration,
-        width,
-        height,
-        codec,
-        bitrate,
+        ...metadata,
+        mediaId: media,
+        userId: userId,
       } as DeepPartial<MediaMetadata>);
       return result!;
     }

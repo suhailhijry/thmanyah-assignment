@@ -21,6 +21,8 @@ type MetadataInput = {
   height: number | null;
   codec: string | null;
   bitrate: number | null;
+  language: string | null;
+  category: string | null;
 };
 
 @Controller('media')
@@ -54,6 +56,15 @@ export class MediaController {
   @MessagePattern(CMSPatterns.MEDIA_UPDATE)
   async update(id: string, data: MediaInput) {
     return this.mediaService.update(id, { ...data });
+  }
+
+  @MessagePattern(CMSPatterns.MEDIA_METADATA_UPDATE)
+  async updateMetadata(data: {
+    id: string;
+    data: MetadataInput;
+    userId: string;
+  }) {
+    return this.mediaService.setMetadata(data.id, data.data, data.userId);
   }
 
   @MessagePattern(CMSPatterns.MEDIA_METADATA)

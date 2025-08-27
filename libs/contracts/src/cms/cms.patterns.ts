@@ -11,4 +11,5 @@ export const CMSPatterns = {
   MEDIA_PUBLISH: 'cms.media.publish',
   MEDIA_DISCARD: 'cms.media.discard',
   MEDIA_METADATA: 'cms.media.metadata',
+  MEDIA_METADATA_UPDATE: 'cms.media.metadata.update',
 } as const;

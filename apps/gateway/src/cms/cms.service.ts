@@ -61,4 +61,24 @@ export class CmsService {
   getMetadata(id: string) {
     return this.cmsClient.send(CMSPatterns.MEDIA_METADATA, id);
   }
+
+  setMetadata(
+    id: string,
+    data: {
+      duration: number | null;
+      width: number | null;
+      height: number | null;
+      codec: string | null;
+      bitrate: number | null;
+      language: string | null;
+      category: string | null;
+    },
+    userId: string,
+  ) {
+    return this.cmsClient.send(CMSPatterns.MEDIA_METADATA_UPDATE, {
+      id: id,
+      data: data,
+      userId: userId,
+    });
+  }
 }
