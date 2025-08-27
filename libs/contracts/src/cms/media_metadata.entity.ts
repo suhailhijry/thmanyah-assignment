@@ -1,5 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
-import { Media } from './media.entity';
+import { Entity, Column, PrimaryGeneratedColumn, ForeignKey } from 'typeorm';
 
 @Entity({ name: 'media_metadata' })
 export class MediaMetadata {
@@ -21,6 +20,20 @@ export class MediaMetadata {
   @Column({ type: 'int', nullable: true })
   bitrate: number;
 
+  @Column({ nullable: true })
+  language: string;
+
+  @Column({ nullable: true })
+  category: string;
+
+  @Column()
+  @ForeignKey('users')
+  userId: string;
+
+  @Column()
+  @ForeignKey('media')
+  mediaId: string;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
@@ -30,7 +43,4 @@ export class MediaMetadata {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
-
-  @OneToOne(() => Media, (media) => media.metadata)
-  media: Media;
 }

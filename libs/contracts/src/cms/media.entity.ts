@@ -1,14 +1,4 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  OneToOne,
-  JoinColumn,
-} from 'typeorm';
-import { User } from '../auth/user.entity';
-import { File } from './file.entity';
-import { MediaMetadata } from './media_metadata.entity';
+import { Entity, Column, PrimaryGeneratedColumn, ForeignKey } from 'typeorm';
 
 export enum MediaType {
   VIDEO = 'video',
@@ -23,13 +13,13 @@ export class Media {
   @Column({ type: 'enum', enum: MediaType })
   type: MediaType;
 
-  @OneToOne(() => File, { eager: true, cascade: true, onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'sourceId' })
-  source: File;
+  @Column()
+  @ForeignKey('files')
+  sourceId: string;
 
-  @OneToOne(() => File, { eager: true, cascade: true, onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'thumbnailId' })
-  thumbnail: File;
+  @Column()
+  @ForeignKey('files')
+  thumbnailId: string;
 
   @Column()
   title: string;
@@ -39,6 +29,10 @@ export class Media {
 
   @Column({ type: 'json', nullable: true, default: [] })
   keywords: string[];
+
+  @Column()
+  @ForeignKey('users')
+  userId: string;
 
   @Column()
   isPublished: boolean;
@@ -55,15 +49,4 @@ export class Media {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
-
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'userId' })
-  user: User;
-
-  @OneToOne(() => MediaMetadata, (metadata) => metadata.media, {
-    cascade: true,
-    eager: true,
-  })
-  @JoinColumn()
-  metadata: MediaMetadata;
 }

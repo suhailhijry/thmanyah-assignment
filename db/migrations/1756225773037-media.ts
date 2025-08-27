@@ -114,6 +114,18 @@ export class Media1756225773037 implements MigrationInterface {
             isNullable: false,
           },
           {
+            name: 'isPublished',
+            type: 'tinyint',
+            isNullable: false,
+            default: true,
+          },
+          {
+            name: 'publishedAt',
+            type: 'timestamp',
+            isNullable: true,
+            default: null,
+          },
+          {
             name: 'createdAt',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
@@ -160,9 +172,120 @@ export class Media1756225773037 implements MigrationInterface {
         onUpdate: 'CASCADE',
       }),
     );
+
+    await queryRunner.createTable(
+      new Table({
+        name: 'media_metadata',
+        columns: [
+          {
+            name: 'id',
+            type: 'uuid',
+            isPrimary: true,
+            isGenerated: true,
+            generationStrategy: 'uuid',
+          },
+          {
+            name: 'duration',
+            type: 'int',
+            isNullable: true,
+          },
+          {
+            name: 'width',
+            type: 'int',
+            isNullable: true,
+          },
+          {
+            name: 'height',
+            type: 'int',
+            isNullable: true,
+          },
+          {
+            name: 'codec',
+            type: 'varchar',
+            isNullable: true,
+          },
+          {
+            name: 'bitrate',
+            type: 'int',
+            isNullable: true,
+          },
+          {
+            name: 'language',
+            type: 'varchar',
+            isNullable: true,
+          },
+          {
+            name: 'category',
+            type: 'varchar',
+            isNullable: true,
+          },
+          {
+            name: 'userId',
+            type: 'uuid',
+            isNullable: false,
+          },
+          {
+            name: 'mediaId',
+            type: 'uuid',
+            isNullable: false,
+          },
+          {
+            name: 'createdAt',
+            type: 'timestamp',
+            default: 'CURRENT_TIMESTAMP',
+          },
+          {
+            name: 'updatedAt',
+            type: 'timestamp',
+            default: 'CURRENT_TIMESTAMP',
+            onUpdate: 'CURRENT_TIMESTAMP',
+          },
+        ],
+      }),
+    );
+
+    await queryRunner.createForeignKey(
+      'media_metadata',
+      new TableForeignKey({
+        columnNames: ['userId'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'users',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      }),
+    );
+
+    await queryRunner.createForeignKey(
+      'media_metadata',
+      new TableForeignKey({
+        columnNames: ['mediaId'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'media',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      }),
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropForeignKey(
+      'media_metadata',
+      new TableForeignKey({
+        columnNames: ['userId'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'users',
+      }),
+    );
+
+    await queryRunner.dropForeignKey(
+      'media_metadata',
+      new TableForeignKey({
+        columnNames: ['mediaId'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'media',
+      }),
+    );
+
     await queryRunner.dropForeignKey(
       'media',
       new TableForeignKey({
@@ -199,6 +322,7 @@ export class Media1756225773037 implements MigrationInterface {
       }),
     );
 
+    await queryRunner.dropTable('media_metadata');
     await queryRunner.dropTable('media');
     await queryRunner.dropTable('files');
   }

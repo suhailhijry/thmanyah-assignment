@@ -12,6 +12,7 @@ type MediaInput = {
   thumbnail: string | null;
   user: string | null;
   keywords: string[] | null;
+  metadata: MetadataInput | null;
 };
 
 type MetadataInput = {
@@ -27,10 +28,7 @@ export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
   @MessagePattern(CMSPatterns.MEDIA_NEW)
-  async create(
-    media: MediaInput,
-    metadata: null | MetadataInput,
-  ): Promise<Media> {
+  async create(media: MediaInput): Promise<Media> {
     return await this.mediaService.create(
       media.type!,
       media.title!,
@@ -38,7 +36,7 @@ export class MediaController {
       media.source!,
       media.thumbnail!,
       media.user!,
-      metadata,
+      media.metadata,
       media.keywords ?? [],
     );
   }
@@ -56,5 +54,10 @@ export class MediaController {
   @MessagePattern(CMSPatterns.MEDIA_UPDATE)
   async update(id: string, data: MediaInput) {
     return this.mediaService.update(id, { ...data });
+  }
+
+  @MessagePattern(CMSPatterns.MEDIA_METADATA)
+  async metadata(id: string) {
+    return await this.mediaService.getMetadata(id);
   }
 }

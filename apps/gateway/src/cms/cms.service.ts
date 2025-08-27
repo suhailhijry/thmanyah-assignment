@@ -1,6 +1,7 @@
 import { CMSPatterns } from '@app/contracts/cms/cms.patterns';
 import { CMS_CLIENT } from '@app/contracts/cms/constants';
 import { File } from '@app/contracts/cms/file.entity';
+import { MediaType } from '@app/contracts/cms/media.entity';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
@@ -27,5 +28,37 @@ export class CmsService {
 
   setFileName(id: string, name: string) {
     return this.cmsClient.send(CMSPatterns.FILE_UPDATE_NAME, { id, name });
+  }
+
+  createMedia(data: {
+    type: MediaType;
+    title: string;
+    description: string;
+    source: string;
+    thumbnail: string;
+    user: string;
+    keywords: string[] | null | undefined;
+    metadata: {
+      duration: number | null;
+      width: number | null;
+      height: number | null;
+      codec: string | null;
+      bitrate: number | null;
+    };
+  }) {
+    console.log('cms service metadata: ', data.metadata);
+    return this.cmsClient.send(CMSPatterns.MEDIA_NEW, data);
+  }
+
+  getMedia(id: string) {
+    return this.cmsClient.send(CMSPatterns.MEDIA_FIND, id);
+  }
+
+  getAll() {
+    return this.cmsClient.send(CMSPatterns.MEDIA_ALL, {});
+  }
+
+  getMetadata(id: string) {
+    return this.cmsClient.send(CMSPatterns.MEDIA_METADATA, id);
   }
 }

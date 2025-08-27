@@ -9,7 +9,7 @@ import multipart from '@fastify/multipart';
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     GatewayModule,
-    new FastifyAdapter({ logger: true }),
+    new FastifyAdapter({ logger: false }),
   );
   await app.register(multipart as any, {
     limits: {

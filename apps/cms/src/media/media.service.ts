@@ -12,8 +12,12 @@ export class MediaService {
     private metadataRepository: Repository<MediaMetadata>,
   ) {}
 
-  findAll(): Promise<Media[]> {
-    return this.mediaRepository.find();
+  async findAll(): Promise<Media[]> {
+    return await this.mediaRepository.find({
+      order: {
+        createdAt: 'desc',
+      },
+    });
   }
 
   findOne(id: string): Promise<Media | null> {
@@ -40,28 +44,39 @@ export class MediaService {
     },
     keywords: null | string[],
   ): Promise<Media> {
-    const newMedia = metadata
-      ? this.mediaRepository.create({
-          type: type,
-          source: { id: source },
-          thumbnail: { id: thumbnail },
-          user: { id: user },
-          title: title,
-          description: description,
-          isPublished: false,
-          keywords: keywords || [],
-        })
-      : this.mediaRepository.create({
-          type: type,
-          source: { id: source },
-          thumbnail: { id: thumbnail },
-          user: { id: user },
-          title: title,
-          description: description,
-          isPublished: false,
-          keywords: keywords || [],
-        });
-    return this.mediaRepository.save(newMedia);
+    if (metadata) {
+      const result = await this.mediaRepository.save({
+        type: type,
+        title: title,
+        description: description,
+        sourceId: source,
+        thumbnailId: thumbnail,
+        userId: user,
+        isPublished: false,
+        keywords: keywords || [],
+      });
+
+      await this.metadataRepository.insert({
+        ...metadata,
+        mediaId: result.id,
+        userId: user,
+      } as DeepPartial<MediaMetadata>);
+
+      console.log('media creation result:', result);
+      return result;
+    } else {
+      const result = this.mediaRepository.save({
+        type: type,
+        title: title,
+        description: description,
+        sourceId: source,
+        thumbnailId: thumbnail,
+        userId: user,
+        isPublished: false,
+        keywords: keywords || [],
+      });
+      return result;
+    }
   }
 
   async publish(id: string): Promise<Media> {
@@ -96,6 +111,10 @@ export class MediaService {
     });
   }
 
+  async getMetadata(media: string) {
+    return await this.metadataRepository.findOneBy({ mediaId: media });
+  }
+
   async setMetadata(
     media: string,
     duration: number | null,
@@ -104,32 +123,34 @@ export class MediaService {
     codec: string | null,
     bitrate: number | null,
   ): Promise<Media> {
-    const m = await this.mediaRepository.findOneBy({ id: media });
+    const m = await this.metadataRepository.findOneBy({ mediaId: media });
 
-    if (!m?.metadata) {
-      this.metadataRepository.create({
+    if (!m) {
+      await this.metadataRepository.save({
         duration: duration,
         width: width,
         height: height,
         codec: codec,
         bitrate: bitrate,
-        media: { id: media },
+        mediaId: media,
       } as DeepPartial<MediaMetadata>);
       const result = await this.mediaRepository.findOneBy({
         id: media,
       });
       return result!;
     } else {
-      const metadata = m.metadata;
+      const result = await this.mediaRepository.findOneBy({
+        id: media,
+      });
       await this.metadataRepository.save({
-        id: metadata.id,
+        id: m.id,
         duration,
         width,
         height,
         codec,
         bitrate,
       } as DeepPartial<MediaMetadata>);
-      return m;
+      return result!;
     }
   }
 }

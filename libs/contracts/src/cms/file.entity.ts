@@ -1,11 +1,4 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
-import { User } from '../auth/user.entity';
+import { Entity, Column, PrimaryGeneratedColumn, ForeignKey } from 'typeorm';
 
 @Entity({ name: 'files' })
 export class File {
@@ -18,6 +11,10 @@ export class File {
   @Column({ unique: true })
   path: string;
 
+  @Column()
+  @ForeignKey('users')
+  userId: string;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
@@ -27,8 +24,4 @@ export class File {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
-
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'userId' })
-  user: User;
 }

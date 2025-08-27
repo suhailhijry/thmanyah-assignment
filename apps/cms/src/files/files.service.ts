@@ -31,7 +31,7 @@ export class FilesService {
     const newFile = this.fileRepository.create({
       name,
       path,
-      user: { id: user },
+      userId: user,
     });
     return this.fileRepository.save(newFile);
   }
