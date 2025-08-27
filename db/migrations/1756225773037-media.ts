@@ -11,7 +11,7 @@ export class Media1756225773037 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'files',
+        name: 'sources',
         columns: [
           {
             name: 'id',
@@ -31,6 +31,18 @@ export class Media1756225773037 implements MigrationInterface {
             type: 'varchar',
             isUnique: true,
             isNullable: false,
+          },
+          {
+            name: 'type',
+            type: 'enum',
+            enum: ['local', 'url'],
+            isNullable: false,
+          },
+          {
+            name: 'origin',
+            type: 'enum',
+            enum: ['youtube'],
+            isNullable: true,
           },
           {
             name: 'userId',
@@ -53,7 +65,7 @@ export class Media1756225773037 implements MigrationInterface {
     );
 
     await queryRunner.createForeignKey(
-      'files',
+      'sources',
       new TableForeignKey({
         columnNames: ['userId'],
         referencedColumnNames: ['id'],
@@ -156,7 +168,7 @@ export class Media1756225773037 implements MigrationInterface {
       new TableForeignKey({
         columnNames: ['sourceId'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'files',
+        referencedTableName: 'sources',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       }),
@@ -167,7 +179,7 @@ export class Media1756225773037 implements MigrationInterface {
       new TableForeignKey({
         columnNames: ['thumbnailId'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'files',
+        referencedTableName: 'sources',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       }),
@@ -291,7 +303,7 @@ export class Media1756225773037 implements MigrationInterface {
       new TableForeignKey({
         columnNames: ['thumbnailId'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'files',
+        referencedTableName: 'sources',
       }),
     );
 
@@ -300,7 +312,7 @@ export class Media1756225773037 implements MigrationInterface {
       new TableForeignKey({
         columnNames: ['sourceId'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'files',
+        referencedTableName: 'sources',
       }),
     );
 
@@ -314,7 +326,7 @@ export class Media1756225773037 implements MigrationInterface {
     );
 
     await queryRunner.dropForeignKey(
-      'files',
+      'sources',
       new TableForeignKey({
         columnNames: ['userId'],
         referencedColumnNames: ['id'],
@@ -324,6 +336,6 @@ export class Media1756225773037 implements MigrationInterface {
 
     await queryRunner.dropTable('media_metadata');
     await queryRunner.dropTable('media');
-    await queryRunner.dropTable('files');
+    await queryRunner.dropTable('sources');
   }
 }

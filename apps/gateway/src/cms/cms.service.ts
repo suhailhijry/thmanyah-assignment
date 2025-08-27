@@ -1,9 +1,10 @@
 import { CMSPatterns } from '@app/contracts/cms/cms.patterns';
 import { CMS_CLIENT } from '@app/contracts/cms/constants';
-import { File } from '@app/contracts/cms/file.entity';
+import { Source } from '@app/contracts/cms/source.entity';
 import { MediaType } from '@app/contracts/cms/media.entity';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { SourceOrigin } from 'module';
 
 @Injectable()
 export class CmsService {
@@ -15,19 +16,28 @@ export class CmsService {
     mimetype: string;
     userId: string;
   }) {
-    return this.cmsClient.send(CMSPatterns.FILE_UPLOAD, payload);
+    return this.cmsClient.send(CMSPatterns.SOURCE_UPLOAD, payload);
   }
 
-  findFile(id: string) {
-    return this.cmsClient.send<File | null>(CMSPatterns.FILE_FIND, id);
+  sourceFromUrl(payload: {
+    name: string;
+    url: string;
+    origin: SourceOrigin;
+    userId: string;
+  }) {
+    return this.cmsClient.send(CMSPatterns.SOURCE_FROM_URL, payload);
   }
 
-  deleteFile(id: string) {
-    return this.cmsClient.send(CMSPatterns.FILE_DELETE, id);
+  findSource(id: string) {
+    return this.cmsClient.send<Source | null>(CMSPatterns.SOURCE_FIND, id);
   }
 
-  setFileName(id: string, name: string) {
-    return this.cmsClient.send(CMSPatterns.FILE_UPDATE_NAME, { id, name });
+  deleteSource(id: string) {
+    return this.cmsClient.send(CMSPatterns.SOURCE_DELETE, id);
+  }
+
+  setSourceNAme(id: string, name: string) {
+    return this.cmsClient.send(CMSPatterns.SOURCE_UPDATE_NAME, { id, name });
   }
 
   createMedia(data: {

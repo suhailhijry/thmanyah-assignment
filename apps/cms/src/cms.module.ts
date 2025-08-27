@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { CmsController } from './cms.controller';
 import { CmsService } from './cms.service';
-import { FilesModule } from './files/files.module';
+import { SourcesModule } from './sources/sources.module';
 import { MediaModule } from './media/media.module';
 import { ConfigModule } from '@nestjs/config';
-import { File } from '@app/contracts/cms/file.entity';
+import { Source } from '@app/contracts/cms/source.entity';
 import { Media } from '@app/contracts/cms/media.entity';
 import { MediaMetadata } from '@app/contracts/cms/media_metadata.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -20,9 +20,9 @@ import { User } from '@app/contracts/auth/user.entity';
       username: process.env.DB_USERNAME ?? 'root',
       password: process.env.DB_PASSWORD ?? 'root',
       database: process.env.DB_NAME ?? 'thmanyah_assignment',
-      entities: [User, File, Media, MediaMetadata],
+      entities: [User, Source, Media, MediaMetadata],
     }),
-    FilesModule,
+    SourcesModule,
     MediaModule,
   ],
   controllers: [CmsController],

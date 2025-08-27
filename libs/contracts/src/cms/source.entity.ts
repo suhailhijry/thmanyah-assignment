@@ -1,7 +1,16 @@
 import { Entity, Column, PrimaryGeneratedColumn, ForeignKey } from 'typeorm';
 
-@Entity({ name: 'files' })
-export class File {
+export enum SourceType {
+  LOCAL = 'local',
+  URL = 'url',
+}
+
+export enum SourceOrigin {
+  YOUTUBE = 'youtube',
+}
+
+@Entity({ name: 'sources' })
+export class Source {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -10,6 +19,12 @@ export class File {
 
   @Column({ unique: true })
   path: string;
+
+  @Column({ type: 'enum', enum: SourceType })
+  type: SourceType;
+
+  @Column({ type: 'enum', enum: SourceOrigin, nullable: true })
+  origin: SourceOrigin;
 
   @Column()
   @ForeignKey('users')

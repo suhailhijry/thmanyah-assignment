@@ -14,11 +14,11 @@ export class Media {
   type: MediaType;
 
   @Column()
-  @ForeignKey('files')
+  @ForeignKey('sources')
   sourceId: string;
 
   @Column()
-  @ForeignKey('files')
+  @ForeignKey('sources')
   thumbnailId: string;
 
   @Column()

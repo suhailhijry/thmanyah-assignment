@@ -7,46 +7,67 @@ import {
   Param,
   Post,
   Req,
+  UnprocessableEntityException,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { CmsService } from './cms.service';
 import type { FastifyRequest } from 'fastify';
 import { JwtAuthGuard } from '@app/contracts/auth/jwt.guard';
-import { map, firstValueFrom } from 'rxjs';
-import { File } from '@app/contracts/cms/file.entity';
+import { map } from 'rxjs';
+import { Source, SourceType } from '@app/contracts/cms/source.entity';
 import { createReadStream } from 'fs';
 import { MediaType } from '@app/contracts/cms/media.entity';
 import { MediaMappingInterceptor } from '@app/contracts/cms/media.interceptor';
+import { SourceOrigin } from 'module';
 
 @UseGuards(JwtAuthGuard)
 @Controller('cms')
 export class CmsController {
   constructor(@Inject() protected readonly cmsService: CmsService) {}
 
-  @Get('file/:id')
-  findFile(@Param('id') id: string) {
-    return this.cmsService.findFile(id).pipe(
-      map((file: File | null) => ({
-        id: file?.id,
-        name: file?.name,
-        user: file?.userId,
-      })),
+  @Get('source/:id')
+  findSource(@Param('id') id: string) {
+    return this.cmsService.findSource(id).pipe(
+      map((source: Source | null) => {
+        console.log(source);
+        if (source == null) {
+          throw new NotFoundException({
+            message: 'Source not found.',
+          });
+        }
+        return {
+          id: source?.id,
+          name: source?.name,
+          origin: source?.origin,
+          url: source?.type == SourceType.URL ? source?.path : undefined,
+          type: source?.type,
+          user: source?.userId,
+        };
+      }),
     );
   }
 
   @Get('file/:id/stream')
-  async download(@Param('id') id: string) {
+  stream(@Param('id') id: string) {
     // NOTE(suhail): can use s3 streaming instead (if applicable)
-    const path = (
-      await firstValueFrom<File | null>(this.cmsService.findFile(id))
-    )?.path;
-    if (!path) {
-      throw new NotFoundException({
-        message: 'File not found',
-      });
-    }
-    return createReadStream(path);
+    return this.cmsService.findSource(id).pipe(
+      map((v) => {
+        if (v && v.type == SourceType.LOCAL) {
+          const path = v.path;
+          if (!path) {
+            throw new NotFoundException({
+              message: 'File not found',
+            });
+          }
+          return createReadStream(path);
+        }
+
+        throw new UnprocessableEntityException({
+          message: 'Unstreamable source id.',
+        });
+      }),
+    );
   }
 
   @Post('file')
@@ -62,10 +83,40 @@ export class CmsController {
         userId: (req as any).user.id,
       })
       .pipe(
-        map((file: File) => ({
-          id: file.id,
-          name: file.name,
-          user: file.userId,
+        map((source: Source) => ({
+          id: source.id,
+          name: source.name,
+          origin: source.origin,
+          type: source.type,
+          user: source.userId,
+        })),
+      );
+  }
+
+  @Post('source')
+  fromUrl(
+    @Body()
+    data: {
+      name: string;
+      url: string;
+      origin: SourceOrigin;
+    },
+    @Req() req: FastifyRequest,
+  ) {
+    return this.cmsService
+      .sourceFromUrl({
+        url: data.url,
+        name: data.name,
+        origin: data.origin,
+        userId: (req as any).user.id,
+      })
+      .pipe(
+        map((source: Source) => ({
+          id: source.id,
+          name: source.name,
+          origin: source.origin,
+          type: source.type,
+          user: source.userId,
         })),
       );
   }
